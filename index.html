@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz IA Générative - Formation Pré-évaluation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+        .info-bar {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .student-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 0;
+        }
+        .student-info input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            transition: border-color 0.3s;
+        }
+        .student-info input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .quiz-content {
+            padding: 30px;
+        }
+        .question-block {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .question-block:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        .question-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .question-number {
+            min-width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            line-height: 1.4;
+        }
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-left: 55px;
+        }
+        .choice-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .choice-item:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+        .choice-item input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+        .choice-item label {
+            font-size: 15px;
+            color: #4a5568;
+            cursor: pointer;
+            flex: 1;
+        }
+        .choice-item.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        .choice-item.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .submit-section {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 60px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            font-family: 'Montserrat', sans-serif;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+        .submit-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .result-modal.show {
+            display: flex;
+        }
+        .result-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            animation: slideUp 0.4s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .result-score {
+            font-size: 72px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+        .result-message {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        .result-details {
+            font-size: 16px;
+            color: #718096;
+            margin-bottom: 30px;
+        }
+        .close-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+        }
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .student-info {
+                grid-template-columns: 1fr;
+            }
+            .question-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Quiz Pré-Formation IA Générative</h1>
+            <p>Évaluez vos connaissances sur l'Intelligence Artificielle</p>
+        </div>
+        
+        <div class="info-bar">
+            <div class="student-info">
+                <input type="text" id="studentName" placeholder="Nom et Prénom" required>
+                <input type="date" id="studentDate" required>
+            </div>
+        </div>
+
+        <div class="quiz-content">
+            <form id="quizForm">
+                <!-- Question 1 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">1</div>
+                        <div class="question-text">Quelle est la définition de l'Intelligence Artificielle ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q1" value="A" id="q1a">
+                            <label for="q1a">Un logiciel de traitement de texte avancé</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q1" value="B" id="q1b">
+                            <label for="q1b">Des systèmes imitant l'intelligence humaine</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q1" value="C" id="q1c">
+                            <label for="q1c">Un réseau social intelligent</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q1" value="D" id="q1d">
+                            <label for="q1d">Une base de données automatique</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">2</div>
+                        <div class="question-text">En quelle année le terme "Intelligence Artificielle" a-t-il été créé ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q2" value="A" id="q2a">
+                            <label for="q2a">1943</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q2" value="B" id="q2b">
+                            <label for="q2b">1956</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q2" value="C" id="q2c">
+                            <label for="q2c">1997</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q2" value="D" id="q2d">
+                            <label for="q2d">2012</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">3</div>
+                        <div class="question-text">Qu'est-ce que l'IA générative ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q3" value="A" id="q3a">
+                            <label for="q3a">Une IA qui crée du nouveau contenu (texte, images...)</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q3" value="B" id="q3b">
+                            <label for="q3b">Une IA qui analyse des données existantes</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q3" value="C" id="q3c">
+                            <label for="q3c">Une IA qui automatise des tâches répétitives</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q3" value="D" id="q3d">
+                            <label for="q3d">Une IA qui traduit des langues</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">4</div>
+                        <div class="question-text">Dans quel domaine l'IA aide-t-elle la prise de décision ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q4" value="A" id="q4a">
+                            <label for="q4a">Analyse prédictive et stratégie d'entreprise</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q4" value="B" id="q4b">
+                            <label for="q4b">Uniquement dans le domaine médical</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q4" value="C" id="q4c">
+                            <label for="q4c">Seulement pour les jeux vidéo</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q4" value="D" id="q4d">
+                            <label for="q4d">Exclusivement pour la finance</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">5</div>
+                        <div class="question-text">Comment l'IA améliore-t-elle la relation client ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q5" value="A" id="q5a">
+                            <label for="q5a">Chatbots 24/7 et personnalisation des interactions</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q5" value="B" id="q5b">
+                            <label for="q5b">En remplaçant totalement les humains</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q5" value="C" id="q5c">
+                            <label for="q5c">En envoyant plus d'emails automatiques</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q5" value="D" id="q5d">
+                            <label for="q5d">En réduisant les options de contact</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 6 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">6</div>
+                        <div class="question-text">Quel outil d'IA est développé par OpenAI ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q6" value="A" id="q6a">
+                            <label for="q6a">Mistral AI</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q6" value="B" id="q6b">
+                            <label for="q6b">ChatGPT</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q6" value="C" id="q6c">
+                            <label for="q6c">Microsoft Copilot</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q6" value="D" id="q6d">
+                            <label for="q6d">Perplexity</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 7 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">7</div>
+                        <div class="question-text">Quelle est la spécialité de Google AI Studio / Imagen ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q7" value="A" id="q7a">
+                            <label for="q7a">Traduction de langues</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q7" value="B" id="q7b">
+                            <label for="q7b">Génération d'images</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q7" value="C" id="q7c">
+                            <label for="q7c">Analyse de données financières</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q7" value="D" id="q7d">
+                            <label for="q7d">Programmation automatique</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 8 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">8</div>
+                        <div class="question-text">Qu'est-ce qu'un biais algorithmique en IA ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q8" value="A" id="q8a">
+                            <label for="q8a">Une erreur de programmation</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q8" value="B" id="q8b">
+                            <label for="q8b">Une discrimination reproduite par l'IA</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q8" value="C" id="q8c">
+                            <label for="q8c">Un avantage de performance</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q8" value="D" id="q8d">
+                            <label for="q8d">Un bug temporaire</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 9 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">9</div>
+                        <div class="question-text">Qu'est-ce que l'IA Act européen ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q9" value="A" id="q9a">
+                            <label for="q9a">Une loi de protection des données personnelles</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q9" value="B" id="q9b">
+                            <label for="q9b">Le premier cadre juridique global sur l'IA</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q9" value="C" id="q9c">
+                            <label for="q9c">Une interdiction de l'IA en Europe</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q9" value="D" id="q9d">
+                            <label for="q9d">Un programme de financement de l'IA</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 10 -->
+                <div class="question-block">
+                    <div class="question-header">
+                        <div class="question-number">10</div>
+                        <div class="question-text">Quelle est une bonne pratique d'usage de l'IA ?</div>
+                    </div>
+                    <div class="choices">
+                        <div class="choice-item">
+                            <input type="radio" name="q10" value="A" id="q10a">
+                            <label for="q10a">Entrer des données confidentielles dans l'IA</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q10" value="B" id="q10b">
+                            <label for="q10b">Accepter tous les résultats sans vérification</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q10" value="C" id="q10c">
+                            <label for="q10c">Vérifier et valider les résultats de l'IA</label>
+                        </div>
+                        <div class="choice-item">
+                            <input type="radio" name="q10" value="D" id="q10d">
+                            <label for="q10d">Partager publiquement les prompts sensibles</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn">✓ Valider mes réponses</button>
+                    <button type="button" class="reset-btn" onclick="resetQuiz()">↻ Recommencer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de résultat -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <div style="font-size: 60px;">🎓</div>
+            <div class="result-score" id="scoreDisplay">0/10</div>
+            <div class="result-message" id="resultMessage">Bravo !</div>
+            <div class="result-details" id="resultDetails">Vous avez répondu correctement à 0 questions sur 10</div>
+            <button class="close-btn" onclick="closeModal()">Voir les réponses</button>
+        </div>
+    </div>
+
+    <script>
+        // Réponses correctes
+        const correctAnswers = {
+            q1: 'B',
+            q2: 'B',
+            q3: 'A',
+            q4: 'A',
+            q5: 'A',
+            q6: 'B',
+            q7: 'B',
+            q8: 'B',
+            q9: 'B',
+            q10: 'C'
+        };
+
+        // Date par défaut
+        document.getElementById('studentDate').valueAsDate = new Date();
+
+        // Gestion de la soumission
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const studentName = document.getElementById('studentName').value.trim();
+            if (!studentName) {
+                alert('⚠️ Veuillez entrer votre nom et prénom avant de valider.');
+                return;
+            }
+
+            let score = 0;
+            const form = e.target;
+
+            // Calculer le score et afficher les résultats
+            for (let question in correctAnswers) {
+                const selectedAnswer = form.querySelector(`input[name="${question}"]:checked`);
+                
+                if (selectedAnswer) {
+                    const choiceItem = selectedAnswer.closest('.choice-item');
+                    
+                    if (selectedAnswer.value === correctAnswers[question]) {
+                        score++;
+                        choiceItem.classList.add('correct');
+                    } else {
+                        choiceItem.classList.add('incorrect');
+                        // Montrer aussi la bonne réponse
+                        const correctChoice = form.querySelector(`input[name="${question}"][value="${correctAnswers[question]}"]`);
+                        if (correctChoice) {
+                            correctChoice.closest('.choice-item').classList.add('correct');
+                        }
+                    }
+                }
+            }
+
+            // Afficher le résultat
+            showResult(score, studentName);
+
+            // Désactiver le formulaire
+            const inputs = form.querySelectorAll('input[type="radio"]');
+            inputs.forEach(input => input.disabled = true);
+            form.querySelector('.submit-btn').disabled = true;
+        });
+
+        function showResult(score, studentName) {
+            const modal = document.getElementById('resultModal');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const resultMessage = document.getElementById('resultMessage');
+            const resultDetails = document.getElementById('resultDetails');
+
+            scoreDisplay.textContent = `${score}/10`;
+            
+            let message = '';
+            if (score >= 9) {
+                message = '🌟 Excellent !';
+            } else if (score >= 7) {
+                message = '👏 Très bien !';
+            } else if (score >= 5) {
+                message = '👍 Bien !';
+            } else {
+                message = '💪 Continuez à apprendre !';
+            }
+            
+            resultMessage.textContent = message;
+            resultDetails.textContent = `${studentName}, vous avez répondu correctement à ${score} question${score > 1 ? 's' : ''} sur 10 (${score * 10}%)`;
+
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('show');
+            // Scroll vers les résultats
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            if (confirm('Êtes-vous sûr de vouloir recommencer le quiz ?')) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

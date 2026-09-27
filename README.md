@@ -1,2 +1,0 @@
-# quizz-ia
-Quizz formation
